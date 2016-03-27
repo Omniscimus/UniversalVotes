@@ -1,0 +1,12 @@
+name: ${pom.artifactId}
+version: ${pom.version}
+softdepend: [Votifier]
+description: ${pom.description}
+
+main: net.omniscimus.universalvotes.UniversalVotes
+database: true
+
+commands:
+   vote:
+      description: The main command for UniversalVotes.
+      usage: /vote <add|get|set|fake>

@@ -1,0 +1,43 @@
+# Enable MySQL? If not, the votes database will go into a separate config named votes.yml
+mysql:
+  enabled: true
+  hostname: '127.0.0.1'
+  port: '3306'
+  database: 'votesdatabase'
+  username: 'root'
+  password: ''
+
+votifier:
+  # Should the votifier listener be enabled? If not, you can still choose to add votes manually using /vote add.
+  enabled: true
+  broadcast-message-on-vote: true
+  commands_on_vote:
+  #- broadcast %p voted for the server!
+  # Should we send a message to players who haven't voted yet? You can't do this if you're not using SQL!
+  vote-reminder-enabled: true
+  # How long should it take (in minutes) before the message is issued again?
+  reminder-delay: 5
+
+# If you're going to use command rewards, UniversalVotes will need to know which sign line belongs to which command.
+signs:
+  command-rewards:
+    on-sign:
+    - 'Command: /back'
+    - 'Diamond Pickaxe'
+    - 'Money: 100 coins'
+    commands:
+    - 'pex user %p timed add essentials.back 3600'
+    - 'give %p diamond_pickaxe 1'
+    - 'eco give %p 100'
+    message-on-buy:
+    - 'You successfully bought the /back command for one hour.'
+    - 'A diamond pickaxe has been placed in your inventory.'
+    - 'You bought 100 coins with votes!'
+
+messages:
+  vote:
+  - '&6Hey %p! You have got %v vote(s).'
+  - '&l&6Vote for us on:'
+  - '&r&6- Planet Minecraft: &7http://www.planetminecraft.com/'
+  - '&6- Minecraft Server List: &7http://minecraft-server-list.com/'
+  

@@ -1,0 +1,11 @@
+# IDE
+nbproject
+.classpath
+.project
+
+# OS
+.DS_Store
+
+# Java
+*.class
+target
