@@ -4,13 +4,12 @@ import java.sql.SQLException;
 import java.util.List;
 import java.util.logging.Level;
 
+import net.omniscimus.universalvotes.Reward;
 import net.omniscimus.universalvotes.UniversalVotes;
-import net.omniscimus.universalvotes.VotesSQL;
 
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.Sign;
-import org.bukkit.command.CommandException;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -25,25 +24,38 @@ import org.bukkit.event.player.PlayerInteractEvent;
 public class SignListeners implements Listener {
 
     private final UniversalVotes plugin;
-    private final VotesSQL database;
 
-    private final List<String> signTexts;
-    private final List<String> commandRewards;
-    private final List<String> messagesOnReward;
+    private final List<Reward> possibleRewards;
 
     /**
      * Creates the object.
      *
      * @param plugin the UniversalVotes instance
-     * @param database a MySQL database accessor
      */
-    public SignListeners(UniversalVotes plugin, VotesSQL database) {
+    public SignListeners(UniversalVotes plugin) {
 	this.plugin = plugin;
-	this.database = database;
 
-	signTexts = plugin.getConfig().getStringList("signs.command-rewards.on-sign");
-	commandRewards = plugin.getConfig().getStringList("signs.command-rewards.commands");
-	messagesOnReward = plugin.getConfig().getStringList("signs.command-rewards.message-on-buy");
+	possibleRewards = plugin.getSettings().signs().getRewardTemplates();
+    }
+
+    /**
+     * Gets whether the given String is the reward text for any possible
+     * rewards, and returns it if so.
+     *
+     * @param text the string to check against the list of reward descriptions
+     * @return the appropriate reward template, or null if there is no reward
+     * with the specified sign text
+     */
+    private Reward getRewardTemplate(String rewardText) {
+	for (Reward reward : possibleRewards) {
+	    if (reward.getSignText().equalsIgnoreCase(rewardText)) {
+		try {
+		    return reward.clone();
+		} catch (CloneNotSupportedException ex) {
+		}
+	    }
+	}
+	return null;
     }
 
     /**
@@ -62,7 +74,7 @@ public class SignListeners implements Listener {
 	    } else {
 		// Second line is fully configurable, check if there's a line from the config on it
 		String line1 = event.getLine(1);
-		if (!signTexts.contains(line1)) {
+		if (getRewardTemplate(line1) == null) {
 		    player.sendMessage("[UniversalVotes] Wrong syntax at line 2!");
 		    event.setCancelled(true);
 		    return;
@@ -88,8 +100,8 @@ public class SignListeners implements Listener {
     /**
      * Handles what happens if someone clicks a reward sign. Called by Bukkit
      * whenever someone clicks on a block.
-     * 
-     * @param event 
+     *
+     * @param event
      */
     @EventHandler
     public void onSignClick(PlayerInteractEvent event) {
@@ -112,29 +124,17 @@ public class SignListeners implements Listener {
 
 	Player player = event.getPlayer();
 	if (player.hasPermission("universalvotes.buy")) {
-	    String playerName = player.getName();
 	    String line1 = clickedSign.getLine(1);
+	    Reward reward = getRewardTemplate(line1);
+	    
 	    String[] line3Array = clickedSign.getLine(3).split(" ");
+	    reward.setCost(Integer.parseInt(line3Array[0]));
 
-	    for (int i = 0; i < signTexts.size(); i++) {
-		if (line1.equalsIgnoreCase(signTexts.get(i))) {
-		    try {
-			if (database.removeVotes(playerName, Integer.parseInt(line3Array[0]))) {
-			    player.sendMessage(line3Array[0] + " votes were removed from your account.");
-			    plugin.getServer().dispatchCommand(plugin.getServer().getConsoleSender(), commandRewards.get(i).replace("%p", playerName));
-			    player.sendMessage(messagesOnReward.get(i));
-			} else {
-			    player.sendMessage("You don't have sufficient votes!");
-			}
-		    } catch (NumberFormatException e) {
-			player.sendMessage("You can't buy that because of an error!");
-			plugin.getLogger().log(Level.WARNING, "Player {0} couldn''t buy at a sign shop because the number of votes at line 4 is incorrect!", playerName);
-		    } catch (SQLException | ClassNotFoundException | CommandException e) {
-			player.sendMessage("You can't buy that because of an error!");
-			plugin.getLogger().log(Level.SEVERE, "Couldn't connect to the MySQL database!", e);
-		    }
-		    break;
-		}
+	    try {
+		reward.give(player);
+	    } catch (SQLException | ClassNotFoundException e) {
+		player.sendMessage("You can't buy that because of an error!");
+		plugin.getLogger().log(Level.SEVERE, "Couldn't connect to the MySQL database!", e);
 	    }
 	}
 

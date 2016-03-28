@@ -1,5 +1,7 @@
 package net.omniscimus.universalvotes;
 
+import java.util.ArrayList;
+import java.util.List;
 import org.bukkit.configuration.file.FileConfiguration;
 
 /**
@@ -12,6 +14,7 @@ public class Settings {
 
     private MySQL mySQL;
     private Votifier votifier;
+    private Signs signs;
     private Messages messages;
 
     /**
@@ -55,6 +58,18 @@ public class Settings {
 	    votifier = new Votifier();
 	}
 	return votifier;
+    }
+
+    /**
+     * Gets the configuration for reward signs.
+     *
+     * @return an instance of Settings.Signs
+     */
+    public Signs signs() {
+	if (signs == null) {
+	    signs = new Signs();
+	}
+	return signs;
     }
 
     /**
@@ -166,6 +181,64 @@ public class Settings {
 	 */
 	public int getReminderDelay() {
 	    return config.getInt(path + "reminder-delay", 5);
+	}
+
+    }
+
+    /**
+     * Contains configuration for the signs functionality.
+     */
+    public class Signs {
+
+	/**
+	 * The path leading to the Votifier configuration section.
+	 */
+	private static final String path = "signs.";
+	
+	/**
+	 * Gets a list of reward templates.
+	 * 
+	 * @return a list of possible sign rewards
+	 */
+	public List<Reward> getRewardTemplates() {
+	    List<String> signTexts = getSignTexts();
+	    List<String> commandRewards = getCommandRewards();
+	    List<String> messagesOnReward = getMessagesOnReward();
+	    int size = Math.min(Math.min(signTexts.size(), commandRewards.size()), messagesOnReward.size());
+	    
+	    List<Reward> rewards = new ArrayList<>();
+	    for (int i = 0; i < size; i++) {
+		rewards.add(new Reward(signTexts.get(i), commandRewards.get(i), messagesOnReward.get(i)));
+	    }
+	    return rewards;
+	}
+
+	/**
+	 * Gets the list of possible texts on reward signs.
+	 *
+	 * @return a list with reward texts
+	 */
+	public List<String> getSignTexts() {
+	    return config.getStringList(path + "command-rewards.on-sign");
+	}
+
+	/**
+	 * Gets the list of reward commands.
+	 *
+	 * @return a list of commands
+	 */
+	public List<String> getCommandRewards() {
+	    return config.getStringList(path + "command-rewards.commands");
+	}
+
+	/**
+	 * Gets the list of messages that players receive upon getting their
+	 * reward.
+	 *
+	 * @return a list of reward messages
+	 */
+	public List<String> getMessagesOnReward() {
+	    return config.getStringList(path + "command-rewards.message-on-buy");
 	}
 
     }

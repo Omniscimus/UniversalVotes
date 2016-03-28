@@ -13,6 +13,8 @@ import org.bukkit.plugin.java.JavaPlugin;
  * Main class for this plugin. Instantiated by Bukkit.
  */
 public class UniversalVotes extends JavaPlugin {
+    
+    public static UniversalVotes P;
 
     private Settings settings;
     private VotesSQL database;
@@ -32,6 +34,15 @@ public class UniversalVotes extends JavaPlugin {
     }
     
     /**
+     * Gets the MySQL database accessor.
+     * 
+     * @return the VotesSQL instance
+     */
+    public VotesSQL getVotesDatabase() {
+	return database;
+    }
+    
+    /**
      * Gets the used VoteListener.
      * 
      * @return VoteListener instance
@@ -45,6 +56,8 @@ public class UniversalVotes extends JavaPlugin {
      */
     @Override
     public void onEnable() {
+	P = this;
+	
 	settings = new Settings(this);
 
 	try {
@@ -72,7 +85,7 @@ public class UniversalVotes extends JavaPlugin {
 	    }
 	}
 
-	signListeners = new SignListeners(this, database);
+	signListeners = new SignListeners(this);
 
 	getServer().getPluginManager().registerEvents(signListeners, this);
 	if (voteListener != null) {
