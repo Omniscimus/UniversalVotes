@@ -22,8 +22,22 @@ public class UniversalVotes extends JavaPlugin {
     private SignListeners signListeners;
     private RemindMessager remindMessager;
     
+    /**
+     * Gets the settings that should be used in this plugin.
+     * 
+     * @return a usable instance of Settings
+     */
     public Settings getSettings() {
 	return settings;
+    }
+    
+    /**
+     * Gets the used VoteListener.
+     * 
+     * @return VoteListener instance
+     */
+    public VoteListener getVoteListener() {
+	return voteListener;
     }
 
     /**

@@ -33,9 +33,7 @@ signs:
     - 'You bought 100 coins with votes!'
 
 messages:
-  vote:
-  - '&6Hey %p! You have got %v vote(s).'
-  - '&l&6Vote for us on:'
-  - '&r&6- Planet Minecraft: &7http://www.planetminecraft.com/'
-  - '&6- Minecraft Server List: &7http://minecraft-server-list.com/'
-  
+  vote: |
+    &6Hey %p! You have got %v vote(s).
+    &lVote for us on:
+    &r&6- Minecraft Server List: &7http://minecraft-server-list.com/

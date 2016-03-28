@@ -12,6 +12,7 @@ public class Settings {
 
     private MySQL mySQL;
     private Votifier votifier;
+    private Messages messages;
 
     /**
      * Constructs the object.
@@ -54,6 +55,18 @@ public class Settings {
 	    votifier = new Votifier();
 	}
 	return votifier;
+    }
+
+    /**
+     * Gets the configuration for certain messages which can be sent to players.
+     *
+     * @return an instance of Settings.Messages
+     */
+    public Messages messages() {
+	if (messages == null) {
+	    messages = new Messages();
+	}
+	return messages;
     }
 
     /**
@@ -153,6 +166,31 @@ public class Settings {
 	 */
 	public int getReminderDelay() {
 	    return config.getInt(path + "reminder-delay", 5);
+	}
+
+    }
+
+    /**
+     * Contains messages that can be sent to players.
+     */
+    public class Messages {
+
+	/**
+	 * The path leading to the Votifier configuration section.
+	 */
+	private static final String path = "messages.";
+
+	/**
+	 * Gets the message that should be sent when a player executes the
+	 * 'vote' command. Contains parameters '%p' and '%v', which should be
+	 * replaced with the player's name and his amount of votes. Also
+	 * contains color codes.
+	 *
+	 * @return the vote command message, or a default message if the setting
+	 * can't be found
+	 */
+	public String getVoteCommandMessage() {
+	    return config.getString(path + "vote", "&6Hey %p! You have got %v vote(s).");
 	}
 
     }
