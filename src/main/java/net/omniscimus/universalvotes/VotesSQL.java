@@ -19,6 +19,18 @@ public class VotesSQL {
     private final MySQL mySQL;
     private Connection con;
 
+    /**
+     * Creates the object.
+     * 
+     * @param plugin UniversalVotes instance
+     * @param hostName the hostname of the MySQL server to connect to
+     * @param port the port of the MySQL server to connect to
+     * @param database the database in the MySQL server which should be used
+     * @param username a valid username for the MySQL server
+     * @param password the password for the specified username
+     * @throws ClassNotFoundException if connecting to the database fails
+     * @throws SQLException if connecting to the database fails
+     */
     public VotesSQL(UniversalVotes plugin, String hostName, String port,
 	    String database, String username, String password)
 	    throws ClassNotFoundException, SQLException {
