@@ -6,6 +6,8 @@ A Bukkit plugin that connects reward points for voting on serverlists across mul
 |------------|-------------|
 | `universalvotes.vote` | Allows a player to execute the `vote` command |
 | `universalvotes.admin` | Allows a player to use admin commands |
+| `universalvotes.placesigns` | Allows a player to place reward signs |
+| `universalvotes.buy` | Allows a player to use reward signs, spending their vote points |
 
 ## Commands
 Look them up by issuing the `vote help` command.
