@@ -3,7 +3,7 @@ package net.omniscimus.universalvotes.listeners;
 import java.util.List;
 
 import net.omniscimus.universalvotes.UniversalVotes;
-import net.omniscimus.universalvotes.database.Database;
+import net.omniscimus.universalvotes.VotesSQL;
 
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
@@ -16,11 +16,11 @@ import com.vexsoftware.votifier.model.VotifierEvent;
 public class VoteListener implements Listener {
 
     private final UniversalVotes plugin;
-    private final Database database;
+    private final VotesSQL database;
     private final List<String> commandsOnVote;
     private final boolean broadcast;
 
-    public VoteListener(UniversalVotes plugin, Database database) {
+    public VoteListener(UniversalVotes plugin, VotesSQL database) {
 	this.plugin = plugin;
 	this.database = database;
 	commandsOnVote = plugin.getConfig().getStringList("votifier.commands_on_vote");

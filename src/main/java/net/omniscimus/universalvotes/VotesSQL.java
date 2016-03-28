@@ -1,4 +1,4 @@
-package net.omniscimus.universalvotes.database;
+package net.omniscimus.universalvotes;
 
 import java.sql.Connection;
 import java.sql.Date;
@@ -10,7 +10,7 @@ import java.sql.Statement;
 import net.omniscimus.universalvotes.UniversalVotes;
 import com.huskehhh.mysql.mysql.MySQL;
 
-public class VotesSQL extends Database {
+public class VotesSQL {
 
     private final UniversalVotes plugin;
     private final MySQL mySQL;
@@ -57,7 +57,6 @@ public class VotesSQL extends Database {
     }
 
     @SuppressWarnings("deprecation")
-    @Override
     public String setVotes(String playerName, int votes) throws SQLException, ClassNotFoundException {
 	PreparedStatement setVotesStatement = getCon().prepareStatement("INSERT INTO " + database + ".universalvotes (playeruuid, votes, lastdate) VALUES (?, ?, ?) ON DUPLICATE KEY UPDATE playeruuid = VALUES(playeruuid), votes = VALUES(votes), lastdate = VALUES(lastdate)");
 	setVotesStatement.setString(1, String.valueOf(plugin.getServer().getOfflinePlayer(playerName).getUniqueId().toString()));
@@ -67,7 +66,6 @@ public class VotesSQL extends Database {
 	return "Successfully set " + playerName + "'s number of votes to " + votes;
     }
 
-    @Override
     public int getVotes(String playerName) throws SQLException, ClassNotFoundException {
 	Statement statement = getCon().createStatement();
 	@SuppressWarnings("deprecation")
@@ -79,13 +77,11 @@ public class VotesSQL extends Database {
 	}
     }
 
-    @Override
     public String addVote(String playerName) throws SQLException, ClassNotFoundException {
 	setVotes(playerName, getVotes(playerName) + 1);
 	return "Vote added to player " + playerName;
     }
 
-    @Override
     public boolean removeVotes(String playerName, int value) throws SQLException, ClassNotFoundException {
 	int currentVotes = getVotes(playerName);
 	if (currentVotes < value) {
@@ -97,7 +93,6 @@ public class VotesSQL extends Database {
 	}
     }
 
-    @Override
     public Date getLastVoteDate(String playerName) throws ClassNotFoundException, SQLException {
 	Statement statement = getCon().createStatement();
 	@SuppressWarnings("deprecation")

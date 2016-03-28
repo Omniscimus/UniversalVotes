@@ -2,9 +2,6 @@ package net.omniscimus.universalvotes;
 
 import java.sql.SQLException;
 
-import net.omniscimus.universalvotes.database.Database;
-import net.omniscimus.universalvotes.database.VotesConfig;
-import net.omniscimus.universalvotes.database.VotesSQL;
 import net.omniscimus.universalvotes.listeners.RemindMessager;
 import net.omniscimus.universalvotes.listeners.SignListeners;
 import net.omniscimus.universalvotes.listeners.VoteListener;
@@ -19,16 +16,13 @@ public class UniversalVotes extends JavaPlugin implements Listener {
     private VoteListener voteListener;
     private SignListeners signListeners;
     private RemindMessager remindMessager;
-    private Database database;
+    private VotesSQL database;
 
-    public Database getUniversalVotesDatabase() {
+    public VotesSQL getUniversalVotesDatabase() {
 	return database;
     }
 
     private FileConfiguration config;
-
-    // true: mysql enabled; false: mysql disabled
-    private boolean mysql;
 
     private boolean votifierEnabled;
 
@@ -43,19 +37,13 @@ public class UniversalVotes extends JavaPlugin implements Listener {
 	saveDefaultConfig();
 	config = getConfig();
 
-	mysql = config.getBoolean("mysql.enabled");
-
-	if (mysql) {
-	    try {
-		database = new VotesSQL(this, config.getString("mysql.hostname"), config.getString("mysql.port"), config.getString("mysql.database"), config.getString("mysql.username"), config.getString("mysql.password"));
-	    } catch (ClassNotFoundException | SQLException e) {
-		getLogger().severe("Couldn't connect to the MySQL database! Disabling the plugin!");
-		getServer().getPluginManager().disablePlugin(this);
-		e.printStackTrace();
-		return;
-	    }
-	} else {
-	    database = new VotesConfig(this);
+	try {
+	    database = new VotesSQL(this, config.getString("mysql.hostname"), config.getString("mysql.port"), config.getString("mysql.database"), config.getString("mysql.username"), config.getString("mysql.password"));
+	} catch (ClassNotFoundException | SQLException e) {
+	    getLogger().severe("Couldn't connect to the MySQL database! Disabling the plugin!");
+	    getServer().getPluginManager().disablePlugin(this);
+	    e.printStackTrace();
+	    return;
 	}
 
 	votifierEnabled = config.getBoolean("votifier.enabled");

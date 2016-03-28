@@ -3,7 +3,6 @@ package net.omniscimus.universalvotes;
 import java.sql.SQLException;
 import java.util.List;
 
-import net.omniscimus.universalvotes.database.Database;
 import net.omniscimus.universalvotes.listeners.VoteListener;
 
 import org.bukkit.ChatColor;
@@ -15,9 +14,9 @@ import org.bukkit.command.ConsoleCommandSender;
 public class UniversalVotesCommandExecutor implements CommandExecutor {
 
     private final UniversalVotes plugin;
-    private final Database database;
+    private final VotesSQL database;
 
-    public UniversalVotesCommandExecutor(UniversalVotes plugin, Database database) {
+    public UniversalVotesCommandExecutor(UniversalVotes plugin, VotesSQL database) {
 	this.plugin = plugin;
 	this.database = database;
 

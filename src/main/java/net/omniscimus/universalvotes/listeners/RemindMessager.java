@@ -6,7 +6,7 @@ import java.util.Calendar;
 import java.util.HashMap;
 
 import net.omniscimus.universalvotes.UniversalVotes;
-import net.omniscimus.universalvotes.database.Database;
+import net.omniscimus.universalvotes.VotesSQL;
 
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
@@ -20,12 +20,12 @@ import org.bukkit.scheduler.BukkitTask;
 public class RemindMessager implements Listener {
 
     private UniversalVotes plugin;
-    private Database database;
+    private VotesSQL database;
 
     private HashMap<String, BukkitTask> reminderRunnables;
     private long delay;
 
-    public RemindMessager(UniversalVotes plugin, Database database, int delay) {
+    public RemindMessager(UniversalVotes plugin, VotesSQL database, int delay) {
 	this.plugin = plugin;
 	this.database = database;
 	plugin.getServer().getPluginManager().registerEvents(this, plugin);

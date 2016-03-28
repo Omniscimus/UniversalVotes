@@ -1,6 +1,4 @@
-# Enable MySQL? If not, the votes database will go into a separate config named votes.yml
 mysql:
-  enabled: true
   hostname: '127.0.0.1'
   port: '3306'
   database: 'votesdatabase'

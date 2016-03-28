@@ -3,7 +3,7 @@ package net.omniscimus.universalvotes.listeners;
 import java.util.List;
 
 import net.omniscimus.universalvotes.UniversalVotes;
-import net.omniscimus.universalvotes.database.Database;
+import net.omniscimus.universalvotes.VotesSQL;
 
 import org.bukkit.Material;
 import org.bukkit.block.Block;
@@ -18,13 +18,13 @@ import org.bukkit.event.player.PlayerInteractEvent;
 public class SignListeners implements Listener {
 
     private UniversalVotes plugin;
-    private Database database;
+    private VotesSQL database;
 
     private List<String> signTexts;
     private List<String> commandRewards;
     private List<String> messagesOnReward;
 
-    public SignListeners(UniversalVotes plugin, Database database) {
+    public SignListeners(UniversalVotes plugin, VotesSQL database) {
 	this.plugin = plugin;
 	this.database = database;
 
