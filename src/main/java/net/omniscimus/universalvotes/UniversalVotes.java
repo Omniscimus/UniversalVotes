@@ -1,70 +1,67 @@
 package net.omniscimus.universalvotes;
 
 import java.sql.SQLException;
+import java.util.logging.Level;
 
 import net.omniscimus.universalvotes.listeners.RemindMessager;
 import net.omniscimus.universalvotes.listeners.SignListeners;
 import net.omniscimus.universalvotes.listeners.VoteListener;
 
-import org.bukkit.configuration.file.FileConfiguration;
-import org.bukkit.event.Listener;
 import org.bukkit.plugin.java.JavaPlugin;
 
-public class UniversalVotes extends JavaPlugin implements Listener {
+/**
+ * Main class for this plugin. Instantiated by Bukkit.
+ */
+public class UniversalVotes extends JavaPlugin {
+
+    private Settings settings;
+    private VotesSQL database;
 
     private UniversalVotesCommandExecutor commandExecutor;
     private VoteListener voteListener;
     private SignListeners signListeners;
     private RemindMessager remindMessager;
-    private VotesSQL database;
-
-    public VotesSQL getUniversalVotesDatabase() {
-	return database;
+    
+    public Settings getSettings() {
+	return settings;
     }
 
-    private FileConfiguration config;
-
-    private boolean votifierEnabled;
-
-    protected boolean getVotifierEnabled() {
-	return votifierEnabled;
-    }
-    private boolean reminderEnabled;
-
+    /**
+     * Contains code that should be executed when the plugin enables.
+     */
     @Override
     public void onEnable() {
-
-	saveDefaultConfig();
-	config = getConfig();
+	settings = new Settings(this);
 
 	try {
-	    database = new VotesSQL(this, config.getString("mysql.hostname"), config.getString("mysql.port"), config.getString("mysql.database"), config.getString("mysql.username"), config.getString("mysql.password"));
+	    Settings.MySQL mySQLSettings = settings.mySQL();
+	    database = new VotesSQL(this,
+		    mySQLSettings.getHostName(),
+		    mySQLSettings.getPort(),
+		    mySQLSettings.getDatabase(),
+		    mySQLSettings.getUsername(),
+		    mySQLSettings.getPassword());
 	} catch (ClassNotFoundException | SQLException e) {
-	    getLogger().severe("Couldn't connect to the MySQL database! Disabling the plugin!");
+	    getLogger().log(Level.SEVERE, "Couldn't connect to the MySQL database. Disabling the plugin.", e);
 	    getServer().getPluginManager().disablePlugin(this);
-	    e.printStackTrace();
 	    return;
 	}
 
-	votifierEnabled = config.getBoolean("votifier.enabled");
-
 	commandExecutor = new UniversalVotesCommandExecutor(this, database);
-	if (votifierEnabled) {
-	    voteListener = new VoteListener(this, database);
-	    reminderEnabled = config.getBoolean("votifier.vote-reminder-enabled");
 
-	    if (reminderEnabled) {
-		if (database instanceof VotesSQL) {
-		    remindMessager = new RemindMessager(this, database, config.getInt("votifier.reminder-delay"));
-		} else {
-		    getLogger().warning("You tried to enable vote reminders, but you're not using SQL. Continuing without reminders.");
-		}
+	Settings.Votifier votifierSettings = settings.votifier();
+	if (votifierSettings.getEnabled()) {
+	    voteListener = new VoteListener(this, database);
+	    if (votifierSettings.getReminderEnabled()) {
+		int reminderDelay = votifierSettings.getReminderDelay();
+		remindMessager = new RemindMessager(this, database, reminderDelay);
 	    }
 	}
+
 	signListeners = new SignListeners(this, database);
 
 	getServer().getPluginManager().registerEvents(signListeners, this);
-	if (votifierEnabled) {
+	if (voteListener != null) {
 	    getServer().getPluginManager().registerEvents(voteListener, this);
 	}
 	if (remindMessager != null) {
@@ -72,17 +69,17 @@ public class UniversalVotes extends JavaPlugin implements Listener {
 	}
 
 	getCommand("vote").setExecutor(commandExecutor);
-
     }
 
+    /**
+     * Contains code that should be executed when the plugin disables.
+     */
     @Override
     public void onDisable() {
-	if (database instanceof VotesSQL) {
-	    try {
-		((VotesSQL) database).closeConnection();
-	    } catch (SQLException e) {
-		e.printStackTrace();
-	    }
+	try {
+	    database.closeConnection();
+	} catch (SQLException e) {
+	    getLogger().log(Level.WARNING, "Could not close the connection to the database", e);
 	}
 	if (remindMessager != null) {
 	    remindMessager.disable();
