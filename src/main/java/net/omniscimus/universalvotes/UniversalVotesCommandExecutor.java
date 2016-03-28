@@ -77,6 +77,9 @@ public class UniversalVotesCommandExecutor implements CommandExecutor {
 		case "fake":
 		    fakeCommand(sender);
 		    break;
+		default:
+		    wrongSyntax(sender);
+		    break;
 	    }
 	}
 	return true;
@@ -213,6 +216,15 @@ public class UniversalVotesCommandExecutor implements CommandExecutor {
 	} else {
 	    sender.sendMessage(ChatColor.RED + "Can't send a fake vote; Votifier isn't enabled in the UniversalVotes config!");
 	}
+    }
+    
+    /**
+     * Sends the specified person a syntax error message.
+     * 
+     * @param sender the person to send the message to
+     */
+    private void wrongSyntax(CommandSender sender) {
+	sender.sendMessage(ChatColor.RED + "Wrong command syntax.");
     }
 
 }
