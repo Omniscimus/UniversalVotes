@@ -1,6 +1,6 @@
 name: ${pom.artifactId}
 version: ${pom.version}
-softdepend: [Votifier]
+softdepend: [NuVotifier]
 description: ${pom.description}
 
 main: net.omniscimus.universalvotes.UniversalVotes
