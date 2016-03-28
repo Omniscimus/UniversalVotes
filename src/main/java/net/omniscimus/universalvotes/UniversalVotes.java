@@ -104,7 +104,9 @@ public class UniversalVotes extends JavaPlugin {
     @Override
     public void onDisable() {
 	try {
-	    database.closeConnection();
+	    if (database != null) {
+		database.closeConnection();
+	    }
 	} catch (SQLException e) {
 	    getLogger().log(Level.WARNING, "Could not close the connection to the database", e);
 	}

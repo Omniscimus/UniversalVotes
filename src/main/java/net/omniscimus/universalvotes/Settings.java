@@ -127,7 +127,7 @@ public class Settings {
 	 * @return the username, or "root" if it can't be found
 	 */
 	public String getUsername() {
-	    return config.getString(path + "database", "root");
+	    return config.getString(path + "username", "root");
 	}
 
 	/**
