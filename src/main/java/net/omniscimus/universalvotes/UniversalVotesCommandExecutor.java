@@ -131,7 +131,13 @@ public class UniversalVotesCommandExecutor implements CommandExecutor {
 	if (hasAdminPermissions(sender)) {
 	    if (args.length == 2) {
 		try {
-		    sender.sendMessage(database.addVote(args[1]));
+		    String message;
+		    if (database.addVote(args[1])) {
+			message = "Added a vote to player " + args[1];
+		    } else {
+			message = "Failed to add a vote to player " + args[1];
+		    }
+		    sender.sendMessage(message);
 		} catch (SQLException | ClassNotFoundException e) {
 		    String error = "Couldn't add a vote to player " + args[1] + "!";
 		    sender.sendMessage(error);
@@ -177,7 +183,13 @@ public class UniversalVotesCommandExecutor implements CommandExecutor {
     private void setCommand(CommandSender sender, String[] args) {
 	if (args.length == 3) {
 	    try {
-		sender.sendMessage(database.setVotes(args[1], Integer.parseInt(args[2])));
+		String message;
+		if (database.setVotes(args[1], Integer.parseInt(args[2]))) {
+		    message = "Set the amount of votes of player " + args[1] + " to " + args[2];
+		} else {
+		    message = "Failed to set the amount of votes of player  " + args[1] + " to " + args[2];
+		}
+		sender.sendMessage(message);
 	    } catch (NumberFormatException e) {
 		sender.sendMessage(args[2] + " is not an integer!");
 	    } catch (SQLException | ClassNotFoundException e) {
