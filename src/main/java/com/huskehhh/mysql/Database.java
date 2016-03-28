@@ -1,10 +1,9 @@
-package code.husky;
+package com.huskehhh.mysql;
 
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-
-import org.bukkit.plugin.Plugin;
+import java.sql.Statement;
 
 /**
  * Abstract Database class, serves as a base for any connection method (MySQL,
@@ -15,19 +14,14 @@ import org.bukkit.plugin.Plugin;
  */
 public abstract class Database {
 
-	/**
-	 * Plugin instance, use for plugin.getDataFolder()
-	 */
-	protected Plugin plugin;
+	protected Connection connection;
 
 	/**
 	 * Creates a new Database
-	 * 
-	 * @param plugin
-	 *            Plugin instance
+	 *
 	 */
-	protected Database(Plugin plugin) {
-		this.plugin = plugin;
+	protected Database() {
+		this.connection = null;
 	}
 
 	/**
@@ -49,14 +43,18 @@ public abstract class Database {
 	 * @throws SQLException
 	 *             if the connection cannot be checked
 	 */
-	public abstract boolean checkConnection() throws SQLException;
+	public boolean checkConnection() throws SQLException {
+		return connection != null && !connection.isClosed();
+	}
 
 	/**
 	 * Gets the connection with the database
 	 * 
 	 * @return Connection with the database, null if none
 	 */
-	public abstract Connection getConnection();
+	public Connection getConnection() {
+		return connection;
+	}
 
 	/**
 	 * Closes the connection with the database
@@ -65,7 +63,14 @@ public abstract class Database {
 	 * @throws SQLException
 	 *             if the connection cannot be closed
 	 */
-	public abstract boolean closeConnection() throws SQLException;
+	public boolean closeConnection() throws SQLException {
+		if (connection == null) {
+			return false;
+		}
+		connection.close();
+		return true;
+	}
+
 
 	/**
 	 * Executes a SQL Query<br>
@@ -80,8 +85,18 @@ public abstract class Database {
 	 * @throws ClassNotFoundException
 	 *             If the driver cannot be found; see {@link #openConnection()}
 	 */
-	public abstract ResultSet querySQL(String query) throws SQLException,
-			ClassNotFoundException;
+	public ResultSet querySQL(String query) throws SQLException,
+			ClassNotFoundException {
+		if (!checkConnection()) {
+			openConnection();
+		}
+
+		Statement statement = connection.createStatement();
+
+		ResultSet result = statement.executeQuery(query);
+
+		return result;
+	}
 
 	/**
 	 * Executes an Update SQL Query<br>
@@ -96,6 +111,16 @@ public abstract class Database {
 	 * @throws ClassNotFoundException
 	 *             If the driver cannot be found; see {@link #openConnection()}
 	 */
-	public abstract int updateSQL(String query) throws SQLException,
-			ClassNotFoundException;
+	public int updateSQL(String query) throws SQLException,
+			ClassNotFoundException {
+		if (!checkConnection()) {
+			openConnection();
+		}
+
+		Statement statement = connection.createStatement();
+
+		int result = statement.executeUpdate(query);
+
+		return result;
+	}
 }

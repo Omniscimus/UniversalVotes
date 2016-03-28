@@ -8,7 +8,7 @@ import java.sql.SQLException;
 import java.sql.Statement;
 
 import net.omniscimus.universalvotes.UniversalVotes;
-import code.husky.mysql.MySQL;
+import com.huskehhh.mysql.mysql.MySQL;
 
 public class VotesSQL extends Database {
 
@@ -32,7 +32,7 @@ public class VotesSQL extends Database {
 	public VotesSQL(UniversalVotes plugin, String hostName, String port, String database, String username, String password) throws ClassNotFoundException, SQLException {
 		this.plugin = plugin;
 		this.database = database;
-		this.mySQL = new MySQL(plugin, hostName, port, database, username, password);
+		this.mySQL = new MySQL(hostName, port, database, username, password);
 
 		Statement statement = getCon().createStatement();
 		//setVotesStatement = con.prepareStatement("INSERT INTO " + database + ".universalvotes (playeruuid, votes, lastdate) VALUES (?, ?, ?) ON DUPLICATE KEY UPDATE playeruuid = VALUES(playeruuid), votes = VALUES(votes), lastdate = VALUES(lastdate)");
