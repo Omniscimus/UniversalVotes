@@ -36,6 +36,7 @@ public class VoteListener implements Listener {
     }
 
     @EventHandler
+    @SuppressWarnings("deprecation")
     public void onVotifierEvent(VotifierEvent event) {
 	Vote vote = event.getVote();
 	String playerName = vote.getUsername();

@@ -111,17 +111,31 @@ public class RemindMessager implements Listener {
      * @return true if the player has not yet voted today; false if he has
      * @throws ClassNotFoundException if connecting to the database failed
      * @throws SQLException if connecting to the database failed
+     * @deprecated use {@link #playerHasVotedToday(Player)}
      */
+    @Deprecated
     public boolean playerHasVotedToday(String playerName) throws ClassNotFoundException, SQLException {
+	return playerHasVotedToday(plugin.getServer().getPlayer(playerName));
+    }
+    
+    /**
+     * Gets if a player did already vote today.
+     *
+     * @param player the player who should be checked
+     * @return true if the player has not yet voted today; false if he has
+     * @throws ClassNotFoundException if connecting to the database failed
+     * @throws SQLException if connecting to the database failed
+     */
+    public boolean playerHasVotedToday(Player player) throws ClassNotFoundException, SQLException {
 	Calendar cal = Calendar.getInstance();
 	cal.add(Calendar.HOUR_OF_DAY, -24);
 	Date dateMinus24Hours = new Date(cal.getTime().getTime());
 	/* The last getTime() is to convert correctly from java.util.Date to
 	 java.sql.Date */
-	if (database.getLastVoteDate(playerName) == null) {
+	if (database.getLastVoteDate(player.getUniqueId()) == null) {
 	    return false;
 	} else {
-	    return !database.getLastVoteDate(playerName).before(dateMinus24Hours);
+	    return !database.getLastVoteDate(player.getUniqueId()).before(dateMinus24Hours);
 	}
     }
 

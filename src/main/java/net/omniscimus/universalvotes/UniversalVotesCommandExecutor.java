@@ -9,6 +9,7 @@ import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Player;
 
 /**
  * Contains code that should be executed when a player executes one of this
@@ -36,6 +37,9 @@ public class UniversalVotesCommandExecutor implements CommandExecutor {
 
     private static final String NO_PERMISSION
 	    = ChatColor.RED + "You don't have permission to execute that command.";
+    
+    private static final String PLAYER_COMMAND
+	    = ChatColor.RED + "This command can only be executed by players.";
 
     public static boolean hasAdminPermissions(CommandSender person) {
 	if (person.hasPermission("universalvotes.admin")) {
@@ -96,9 +100,13 @@ public class UniversalVotesCommandExecutor implements CommandExecutor {
 	    sender.sendMessage(NO_PERMISSION);
 	    return;
 	}
+	if (!(sender instanceof Player)) {
+	    sender.sendMessage(PLAYER_COMMAND);
+	    return;
+	}
 	int votes;
 	try {
-	    votes = database.getVotes(sender.getName());
+	    votes = database.getVotes(((Player)sender).getUniqueId());
 	} catch (SQLException | ClassNotFoundException e) {
 	    plugin.getLogger().log(Level.SEVERE, "Couldn't connect to the MySQL database!", e);
 	    votes = 0;
@@ -130,6 +138,7 @@ public class UniversalVotesCommandExecutor implements CommandExecutor {
      * @param sender the person who executed this command
      * @param args the original array containing the command's arguments
      */
+    @SuppressWarnings("deprecation")
     private void addCommand(CommandSender sender, String[] args) {
 	if (hasAdminPermissions(sender)) {
 	    if (args.length == 2) {
@@ -159,6 +168,7 @@ public class UniversalVotesCommandExecutor implements CommandExecutor {
      * @param sender the person who executed this command
      * @param args the original array containing the command's arguments
      */
+    @SuppressWarnings("deprecation")
     private void getCommand(CommandSender sender, String[] args) {
 	if (hasAdminPermissions(sender)) {
 	    if (args.length == 2) {
@@ -183,6 +193,7 @@ public class UniversalVotesCommandExecutor implements CommandExecutor {
      * @param sender the person who executed this command
      * @param args the original array containing the command's arguments
      */
+    @SuppressWarnings("deprecation")
     private void setCommand(CommandSender sender, String[] args) {
 	if (args.length == 3) {
 	    try {

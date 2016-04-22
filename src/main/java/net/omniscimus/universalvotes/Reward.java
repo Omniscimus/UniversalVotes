@@ -63,7 +63,7 @@ public class Reward {
     public void give(Player player) throws SQLException, ClassNotFoundException {
 	String playerName = player.getName();
 	UniversalVotes plugin = UniversalVotes.P;
-	if (plugin.getVotesDatabase().removeVotes(playerName, cost)) {
+	if (plugin.getVotesDatabase().removeVotes(player.getUniqueId(), cost)) {
 	    player.sendMessage(cost + " votes were removed from your account.");
 	    plugin.getServer().dispatchCommand(plugin.getServer().getConsoleSender(), command.replace("%p", playerName));
 	    player.sendMessage(rewardMessage);
