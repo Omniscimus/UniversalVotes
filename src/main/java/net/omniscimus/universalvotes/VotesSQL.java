@@ -8,6 +8,7 @@ import java.sql.SQLException;
 import java.sql.Statement;
 
 import com.huskehhh.mysql.mysql.MySQL;
+import java.util.UUID;
 
 /**
  * Contains code used to connect to the MySQL database.
@@ -56,6 +57,19 @@ public class VotesSQL {
 	 *	lastdate = VALUES(lastdate)
 	 */
     }
+    
+    /**
+     * Gets the Unique User ID for the user with the specified name. Looking up
+     * offline players or players who never joined the server is allowed, but
+     * may return null.
+     * 
+     * @param playerName the name of the player whose UUID should be looked up
+     * @return the UUID of the specified player, or null if it couldn't be found
+     */
+    @Deprecated
+    private UUID getUUID(String playerName) {
+	return plugin.getServer().getOfflinePlayer(playerName).getUniqueId();
+    }
 
     /**
      * Gets a usable connection. Creates a new connection if an existing one is
@@ -97,15 +111,30 @@ public class VotesSQL {
      * the query was not executed; true otherwise
      * @throws SQLException if the database couldn't be accessed
      * @throws ClassNotFoundException if the database couldn't be accessed
+     * @deprecated use {@link #setVotes(UUID, int)}
      */
+    @Deprecated
     public boolean setVotes(String playerName, int votes) throws SQLException, ClassNotFoundException {
-	@SuppressWarnings("deprecation")
-	String uuid = plugin.getServer().getOfflinePlayer(playerName).getUniqueId().toString();
-	if (uuid == null) {
+	return setVotes(getUUID(playerName), votes);
+    }
+    
+    /**
+     * Sets the number of votes of the specified player to the specified amount.
+     *
+     * @param player the UUID of the player whose amount of votes should be
+     * changed
+     * @param votes the player's new amount of votes
+     * @return false if the UUID of the specified player couldn't be found and
+     * the query was not executed; true otherwise
+     * @throws SQLException if the database couldn't be accessed
+     * @throws ClassNotFoundException if the database couldn't be accessed
+     */
+    public boolean setVotes(UUID player, int votes) throws SQLException, ClassNotFoundException {
+	if (player == null) {
 	    return false;
 	}
 	PreparedStatement setVotesStatement = getConnection().prepareStatement("INSERT INTO universalvotes (playeruuid, votes, lastdate) VALUES (?, ?, ?) ON DUPLICATE KEY UPDATE playeruuid = VALUES(playeruuid), votes = VALUES(votes), lastdate = VALUES(lastdate)");
-	setVotesStatement.setString(1, uuid);
+	setVotesStatement.setString(1, player.toString());
 	setVotesStatement.setInt(2, votes);
 	setVotesStatement.setDate(3, new java.sql.Date(System.currentTimeMillis()));
 	setVotesStatement.execute();
@@ -121,15 +150,29 @@ public class VotesSQL {
      * found
      * @throws SQLException if the database couldn't be accessed
      * @throws ClassNotFoundException if the database couldn't be accessed
+     * @deprecated use {@link #getVotes(UUID)}
      */
+    @Deprecated
     public int getVotes(String playerName) throws SQLException, ClassNotFoundException {
-	@SuppressWarnings("deprecation")
-	String uuid = plugin.getServer().getOfflinePlayer(playerName).getUniqueId().toString();
-	if (uuid == null) {
+	return getVotes(getUUID(playerName));
+    }
+    
+    /**
+     * Gets the amount of votes of the specified player.
+     *
+     * @param player the UUID of the player whose amount of votes should be
+     * given
+     * @return the amount of votes of the player, or 0 if the player couldn't be
+     * found
+     * @throws SQLException if the database couldn't be accessed
+     * @throws ClassNotFoundException if the database couldn't be accessed
+     */
+    public int getVotes(UUID player) throws SQLException, ClassNotFoundException {
+	if (player == null) {
 	    return 0;
 	}
 	Statement statement = getConnection().createStatement();
-	ResultSet rs = statement.executeQuery("SELECT votes FROM universalvotes WHERE playeruuid = '" + uuid + "';");
+	ResultSet rs = statement.executeQuery("SELECT votes FROM universalvotes WHERE playeruuid = '" + player + "';");
 	if (rs.next()) {
 	    return rs.getInt("votes");
 	} else {
@@ -146,9 +189,25 @@ public class VotesSQL {
      * the query was not executed; true otherwise
      * @throws SQLException if the database couldn't be accessed
      * @throws ClassNotFoundException if the database couldn't be accessed
+     * @deprecated use {@link #addVote(UUID)}
      */
+    @Deprecated
     public boolean addVote(String playerName) throws SQLException, ClassNotFoundException {
-	return setVotes(playerName, getVotes(playerName) + 1);
+	return addVote(getUUID(playerName));
+    }
+    
+    /**
+     * Increments the player's vote count by one.
+     *
+     * @param player the UUID of the player whose vote count should be
+     * incremented
+     * @return false if the UUID of the specified player couldn't be found and
+     * the query was not executed; true otherwise
+     * @throws SQLException if the database couldn't be accessed
+     * @throws ClassNotFoundException if the database couldn't be accessed
+     */
+    public boolean addVote(UUID player) throws SQLException, ClassNotFoundException {
+	return setVotes(player, getVotes(player) + 1);
     }
 
     /**
@@ -161,14 +220,39 @@ public class VotesSQL {
      * subtraction; true otherwise
      * @throws SQLException if the database couldn't be accessed
      * @throws ClassNotFoundException if the database couldn't be accessed
+     * @deprecated use {@link #removeVotes(UUID, int)}
      */
+    @Deprecated
     public boolean removeVotes(String playerName, int toRemove) throws SQLException, ClassNotFoundException {
-	int currentVotes = getVotes(playerName);
+	UUID uuid = getUUID(playerName);
+	int currentVotes = getVotes(uuid);
 	if (currentVotes < toRemove) {
 	    // Insufficient votes
 	    return false;
 	} else {
-	    setVotes(playerName, currentVotes - toRemove);
+	    setVotes(uuid, currentVotes - toRemove);
+	    return true;
+	}
+    }
+    
+    /**
+     * Removes an amount of votes from a player's vote count.
+     *
+     * @param player the Unique User ID of the player whose votes to lessen
+     * @param toRemove the amount of votes that should be subtracted from the
+     * player's vote count
+     * @return false if the player does not have enough votes for this
+     * subtraction; true otherwise
+     * @throws SQLException if the database couldn't be accessed
+     * @throws ClassNotFoundException if the database couldn't be accessed
+     */
+    public boolean removeVotes(UUID player, int toRemove) throws SQLException, ClassNotFoundException {
+	int currentVotes = getVotes(player);
+	if (currentVotes < toRemove) {
+	    // Insufficient votes
+	    return false;
+	} else {
+	    setVotes(player, currentVotes - toRemove);
 	    return true;
 	}
     }
@@ -181,12 +265,32 @@ public class VotesSQL {
      * @return the date of the last time the player voted, or null if the player couldn't be found
      * @throws SQLException if the database couldn't be accessed
      * @throws ClassNotFoundException if the database couldn't be accessed
+     * @deprecated use {@link #getLastVoteDate(UUID)}
      */
+    @Deprecated
     public Date getLastVoteDate(String playerName) throws ClassNotFoundException, SQLException {
-	@SuppressWarnings("deprecation")
 	String uuid = plugin.getServer().getOfflinePlayer(playerName).getUniqueId().toString();
 	Statement statement = getConnection().createStatement();
 	ResultSet rs = statement.executeQuery("SELECT lastdate FROM universalvotes WHERE playeruuid = '" + uuid + "';");
+	if (rs.next()) {
+	    return rs.getDate("lastdate");
+	} else {
+	    return null;
+	}
+    }
+
+    /**
+     * Gets the date on which a player voted for the last time.
+     *
+     * @param player the UUID of the player whose last vote time should be
+     * given
+     * @return the date of the last time the player voted, or null if the player couldn't be found
+     * @throws SQLException if the database couldn't be accessed
+     * @throws ClassNotFoundException if the database couldn't be accessed
+     */
+    public Date getLastVoteDate(UUID player) throws ClassNotFoundException, SQLException {
+	Statement statement = getConnection().createStatement();
+	ResultSet rs = statement.executeQuery("SELECT lastdate FROM universalvotes WHERE playeruuid = '" + player.toString() + "';");
 	if (rs.next()) {
 	    return rs.getDate("lastdate");
 	} else {
